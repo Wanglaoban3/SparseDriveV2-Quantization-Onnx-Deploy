@@ -53,6 +53,9 @@
 | +蒸馏QAT(保留最优) | 20.8% | 9.5cm | 0.450 | **0.656** | **1.0925m** |
 
 - 规划质量结论：最终量化模型相对GT的规划距离1.0925m vs FP32的1.0923m，**差异0.2mm量级**
+- **端到端PDMS验证**（138场景同口径，`deploy/pdms_eval_quant.py`）：FP32 0.7440 vs
+  最终交付（fake-quant）0.7471，111/138场景逐分一致（14升/13降）——数据集指标与原版持平，
+  证据见 `pdms_report.json` + `pdms_fp32.csv` / `pdms_int8_qat.csv`
 - argmax翻转发生在得分接近的相似轨迹之间（400选1），几何影响很小（traj_l1≈9.5cm）
 - MHA投影已通过模块替换纳入INT8量化（169→189对Q/DQ节点）
 - 敏感层Top：_status_encoding（收益极小的tiny Linear）、v_attention/v_img_attention投影、backbone.layer1卷积（见sensitivity.json，已回退FP16）

@@ -1,0 +1,38 @@
+{
+  "protocol": "navsim v1 PDMS, PDMSimulator+PDMScorer(40x0.1s), agent traj 8x0.5s, 138 mini scenes; quant model = INT8+Top12fallback+KD-QAT fake-quant",
+  "n_scenes": 138,
+  "fp32": {
+    "no_at_fault_collisions": 0.8695652173913043,
+    "drivable_area_compliance": 0.9420289855072463,
+    "ego_progress": 0.6928863878254108,
+    "time_to_collision_within_bound": 0.8188405797101449,
+    "comfort": 1.0,
+    "driving_direction_compliance": 0.9818840579710145,
+    "score": 0.7440166712557569
+  },
+  "int8_qat": {
+    "no_at_fault_collisions": 0.8695652173913043,
+    "drivable_area_compliance": 0.9420289855072463,
+    "ego_progress": 0.6931040591551126,
+    "time_to_collision_within_bound": 0.8260869565217391,
+    "comfort": 1.0,
+    "driving_direction_compliance": 0.9818840579710145,
+    "score": 0.7471266913146302
+  },
+  "deltas": {
+    "no_at_fault_collisions": 0.0,
+    "drivable_area_compliance": 0.0,
+    "ego_progress": 0.00021767132970185177,
+    "time_to_collision_within_bound": 0.007246376811594235,
+    "comfort": 0.0,
+    "driving_direction_compliance": 0.0,
+    "score": 0.0031100200588732863
+  },
+  "scene_diff": {
+    "identical": 111,
+    "improved": 14,
+    "degraded": 13
+  },
+  "fp32_agent_harness_reference": 0.7391,
+  "note_fp32_reference": "历史FP32基线0.7391由agent+h hydra链路(run_pdm_score_navtest_v1_fast)评出；本脚本的FP32为0.7440，同链路差异来自评测入口与个别临界场景翻转，量级±0.005。FP32/量化对比以同脚本同批场景为准。"
+}

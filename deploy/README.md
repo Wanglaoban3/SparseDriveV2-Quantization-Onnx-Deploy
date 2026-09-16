@@ -100,3 +100,18 @@ python deploy/bench_baseline.py   # fp32 延迟基准
 | +蒸馏QAT（最终） | 9.5cm | 0.450 | **0.656** | **1.0925m** |
 
 早期实验脚本（v1蒸馏QAT、真标签QAT）未随仓库分发，其失败结论作为负结果记录在 `artifacts/BOARD_DEPLOY.md`；主流程用 `kd_qat_v2.py`。
+
+## 端到端 PDMS（数据集指标 vs 原版）
+```bash
+python deploy/pdms_eval_quant.py    # FP32 与 最终INT8(fake-quant) 各跑一遍138场景PDMS
+```
+同一批 138 场景、与 navsim `run_pdm_score_navtest_v1_fast` 完全同口径（PDMSimulator+PDMScorer，
+40×0.1s proposal，agent 轨迹 8×0.5s）：
+
+| 模型 | PDMS | 逐分一致场景 |
+|---|---|---|
+| FP32 | 0.7440 | — |
+| **INT8+Top-12回退+蒸馏QAT（最终交付）** | **0.7471** | 111/138（14升/13降，净差+0.003） |
+
+证据落盘：`artifacts/pdms_report.json`、逐场景 `pdms_fp32.csv` / `pdms_int8_qat.csv`。
+量化交付在数据集端到端指标上与原版持平。

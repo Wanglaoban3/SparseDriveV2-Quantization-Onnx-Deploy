@@ -61,7 +61,7 @@
 ## 指标
 
 > 环境：NAVSIM v1（OpenScene mini 分片 0，2 个日志 / 138 场景）。FP32 基线为原生 CUDA 推理；
-> 量化对比在 24 个从未参与校准/训练的 held-out 样本上进行。
+> 漂移对比在 24 个从未参与校准/训练的 held-out 样本上进行，另有 138 场景端到端 PDMS 对比。
 
 **端到端量化精度**（核心表）：
 
@@ -74,8 +74,11 @@
 
 **其他关键数字**：
 
-- FP32 基线全 mini 评测：138/138 场景 PDMS **0.739**（上游全量 navtest 为 92.22，mini 子集分布不同，
-  只用于横向对比量化配置）
+- 端到端 PDMS 对比（138 场景同口径，`deploy/pdms_eval_quant.py`）：FP32 **0.744** vs
+  最终 INT8 交付（fake-quant）**0.747** —— 111/138 场景逐分一致（14 升 / 13 降），
+  量化在数据集指标上与原版持平；历史 agent 链路基线 0.739，链路间 ±0.005 为临界场景翻转噪声
+  （上游全量 navtest 为 92.22，mini 子集分布不同，只用于横向对比）
+  （证据：`deploy/artifacts/pdms_report.json` + 逐场景 `pdms_fp32.csv` / `pdms_int8_qat.csv`）
 - DFA feat-INT8（per-C）增量：端到端 metric MAE **+0.041**（仅为全模型 QDQ 漂移的 1/16），
   DFA 输出 cosine 0.99986，轨迹 argmax 一致率 100%
 - **负结果同样记录在案**（详见 `deploy/artifacts/BOARD_DEPLOY.md`）：

@@ -1,0 +1,4 @@
+defaults:
+  - scene_filter: shard0
+
+data_split: mini

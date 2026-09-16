@@ -1,0 +1,744 @@
+[
+  {
+    "name": "_status_encoding",
+    "gain": 0.1968618854880333,
+    "drift": 0.9076023250818253,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.1276354342699051
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.v_attention.out_proj",
+    "gain": 0.04492679983377457,
+    "drift": 1.059537410736084,
+    "argmax": 0.125,
+    "traj_l1": 0.0944930911064148
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.v_img_attention.in_proj",
+    "gain": 0.0268566757440567,
+    "drift": 1.0776075348258018,
+    "argmax": 0.125,
+    "traj_l1": 0.08144303411245346
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.v_img_attention.out_proj",
+    "gain": 0.02106209099292755,
+    "drift": 1.083402119576931,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.09220089763402939
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_attention.in_proj",
+    "gain": 0.016900494694709778,
+    "drift": 1.0875637158751488,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.08984347432851791
+  },
+  {
+    "name": "_backbone.img_backbone.layer1.1.conv1",
+    "gain": 0.013035014271736145,
+    "drift": 1.0914291962981224,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.0792069062590599
+  },
+  {
+    "name": "_backbone.img_backbone.layer1.2.conv1",
+    "gain": 0.012479044497013092,
+    "drift": 1.0919851660728455,
+    "argmax": 0.25,
+    "traj_l1": 0.08304649591445923
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.1.conv2",
+    "gain": 0.011229187250137329,
+    "drift": 1.0932350233197212,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10655636340379715
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.v_ffn.0",
+    "gain": 0.010199159383773804,
+    "drift": 1.0942650511860847,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.08181781321763992
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.no_at_fault_collisions.2",
+    "gain": 0.009697094559669495,
+    "drift": 1.094767116010189,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.0824982151389122
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.path_mlp.2",
+    "gain": 0.008835792541503906,
+    "drift": 1.0956284180283546,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_deform_model.camera_encoder.3",
+    "gain": 0.007480427622795105,
+    "drift": 1.0969837829470634,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.08466695994138718
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_deform_model.weights_fc",
+    "gain": 0.007381081581115723,
+    "drift": 1.0970831289887428,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.08463350683450699
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.0.conv2",
+    "gain": 0.004702940583229065,
+    "drift": 1.0997612699866295,
+    "argmax": 0.25,
+    "traj_l1": 0.10721590369939804
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.vel_mlp.0",
+    "gain": 0.003102540969848633,
+    "drift": 1.10136166960001,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_deform_model.camera_encoder.3",
+    "gain": 0.0025383606553077698,
+    "drift": 1.1019258499145508,
+    "argmax": 0.125,
+    "traj_l1": 0.10597515106201172
+  },
+  {
+    "name": "_backbone.img_backbone.layer1.0.conv2",
+    "gain": 0.0012984797358512878,
+    "drift": 1.1031657308340073,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.1264532059431076
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_deform_model.camera_encoder.0",
+    "gain": 0.0008628517389297485,
+    "drift": 1.1036013588309288,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.08969046920537949
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.driving_direction_compliance.2",
+    "gain": 0.00013208389282226562,
+    "drift": 1.1043321266770363,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.time_to_collision_within_bound.0",
+    "gain": 0.00012271106243133545,
+    "drift": 1.1043414995074272,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09207140654325485
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.ego_progress.2",
+    "gain": 9.965896606445312e-05,
+    "drift": 1.104364551603794,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.comfort.0",
+    "gain": 7.95125961303711e-05,
+    "drift": 1.1043846979737282,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.drivable_area_compliance.2",
+    "gain": 1.7881393432617188e-05,
+    "drift": 1.104446329176426,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.comfort.2",
+    "gain": 1.621246337890625e-05,
+    "drift": 1.1044479981064796,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.time_to_collision_within_bound.2",
+    "gain": 1.52587890625e-05,
+    "drift": 1.104448951780796,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.traj_mlp.0",
+    "gain": 0.0,
+    "drift": 1.1044642105698586,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.traj_mlp.2",
+    "gain": 0.0,
+    "drift": 1.1044642105698586,
+    "argmax": 0.25,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.driving_direction_compliance.0",
+    "gain": -8.463859558105469e-06,
+    "drift": 1.1044726744294167,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.drivable_area_compliance.0",
+    "gain": -3.528594970703125e-05,
+    "drift": 1.1044994965195656,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.v_img_attention.in_proj",
+    "gain": -0.00035049766302108765,
+    "drift": 1.1048147082328796,
+    "argmax": 0.125,
+    "traj_l1": 0.11386990547180176
+  },
+  {
+    "name": "_backbone.img_neck.inner_blocks.0.0",
+    "gain": -0.0006760656833648682,
+    "drift": 1.1051402762532234,
+    "argmax": 0.25,
+    "traj_l1": 0.10360664874315262
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.vel_mlp.2",
+    "gain": -0.001621246337890625,
+    "drift": 1.1060854569077492,
+    "argmax": 0.125,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.no_at_fault_collisions.0",
+    "gain": -0.001901470124721527,
+    "drift": 1.10636568069458,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09411728382110596
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_ffn.2",
+    "gain": -0.0019429028034210205,
+    "drift": 1.1064071133732796,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09438569098711014
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_ffn.0",
+    "gain": -0.0020339787006378174,
+    "drift": 1.1064981892704964,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09438569098711014
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_ffn.2",
+    "gain": -0.0028032809495925903,
+    "drift": 1.1072674915194511,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10148560255765915
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.path_mlp.0",
+    "gain": -0.0041043758392333984,
+    "drift": 1.108568586409092,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.09216789156198502
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_ffn.2",
+    "gain": -0.004966124892234802,
+    "drift": 1.1094303354620934,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10423817485570908
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_attention.out_proj",
+    "gain": -0.006320014595985413,
+    "drift": 1.110784225165844,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.11654507368803024
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.v_attention.in_proj",
+    "gain": -0.006968103349208832,
+    "drift": 1.1114323139190674,
+    "argmax": 0.125,
+    "traj_l1": 0.09934842586517334
+  },
+  {
+    "name": "_backbone.img_backbone.layer1.0.conv1",
+    "gain": -0.007627271115779877,
+    "drift": 1.1120914816856384,
+    "argmax": 0.125,
+    "traj_l1": 0.108431875705719
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.5.conv1",
+    "gain": -0.008252516388893127,
+    "drift": 1.1127167269587517,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.1176024004817009
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_attention.in_proj",
+    "gain": -0.009812496602535248,
+    "drift": 1.1142767071723938,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10245448350906372
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_attention.out_proj",
+    "gain": -0.01023777574300766,
+    "drift": 1.1147019863128662,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10255098342895508
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.vel_mlp.0",
+    "gain": -0.010934673249721527,
+    "drift": 1.11539888381958,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10328733921051025
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.vel_mlp.2",
+    "gain": -0.010934673249721527,
+    "drift": 1.11539888381958,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10328733921051025
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.5.conv2",
+    "gain": -0.011710867285728455,
+    "drift": 1.116175077855587,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.1035320982336998
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.metric_heads.ego_progress.0",
+    "gain": -0.011876747012138367,
+    "drift": 1.116340957581997,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10405536741018295
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_deform_model.camera_encoder.3",
+    "gain": -0.012183845043182373,
+    "drift": 1.116648055613041,
+    "argmax": 0.25,
+    "traj_l1": 0.10937521606683731
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.v_ffn.2",
+    "gain": -0.013034716248512268,
+    "drift": 1.1174989268183708,
+    "argmax": 0.125,
+    "traj_l1": 0.10310523957014084
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_ffn.0",
+    "gain": -0.013737790286540985,
+    "drift": 1.1182020008563995,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.11506691575050354
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.path_mlp.2",
+    "gain": -0.014551602303981781,
+    "drift": 1.1190158128738403,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.1142280101776123
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.2.conv2",
+    "gain": -0.015504315495491028,
+    "drift": 1.1199685260653496,
+    "argmax": 0.3333333333333333,
+    "traj_l1": 0.11150550097227097
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_deform_model.weights_fc",
+    "gain": -0.015733860433101654,
+    "drift": 1.1201980710029602,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.10411947965621948
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_deform_model.output_proj",
+    "gain": -0.01624172180891037,
+    "drift": 1.120705932378769,
+    "argmax": 0.125,
+    "traj_l1": 0.116070955991745
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_ffn.0",
+    "gain": -0.016433104872703552,
+    "drift": 1.120897315442562,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10200633853673935
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.1.conv2",
+    "gain": -0.017714515328407288,
+    "drift": 1.1221787258982658,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.09496312588453293
+  },
+  {
+    "name": "_backbone.img_neck.inner_blocks.2.0",
+    "gain": -0.017908714711666107,
+    "drift": 1.1223729252815247,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.11789768934249878
+  },
+  {
+    "name": "_backbone.img_neck.layer_blocks.0.0",
+    "gain": -0.018237829208374023,
+    "drift": 1.1227020397782326,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.10616079717874527
+  },
+  {
+    "name": "_backbone.img_neck.layer_blocks.2.0",
+    "gain": -0.018328994512557983,
+    "drift": 1.1227932050824165,
+    "argmax": 0.25,
+    "traj_l1": 0.12019813805818558
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_deform_model.camera_encoder.0",
+    "gain": -0.01904182881116867,
+    "drift": 1.1235060393810272,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.11139711737632751
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.v_img_attention.out_proj",
+    "gain": -0.02001030743122101,
+    "drift": 1.1244745180010796,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.1140056774020195
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.path_mlp.0",
+    "gain": -0.020373746752738953,
+    "drift": 1.1248379573225975,
+    "argmax": 0.125,
+    "traj_l1": 0.11992176622152328
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_deform_model.kps_generator.learnable_fc",
+    "gain": -0.021016858518123627,
+    "drift": 1.1254810690879822,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.11379390954971313
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_deform_model.kps_generator.learnable_fc",
+    "gain": -0.022763937711715698,
+    "drift": 1.1272281482815742,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.11769486218690872
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.v_attention.in_proj",
+    "gain": -0.023006200790405273,
+    "drift": 1.1274704113602638,
+    "argmax": 0.125,
+    "traj_l1": 0.11430779844522476
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.t_deform_model.output_proj",
+    "gain": -0.023430675268173218,
+    "drift": 1.1278948858380318,
+    "argmax": 0.25,
+    "traj_l1": 0.11625827103853226
+  },
+  {
+    "name": "_backbone.img_neck.layer_blocks.1.0",
+    "gain": -0.023550324141979218,
+    "drift": 1.1280145347118378,
+    "argmax": 0.25,
+    "traj_l1": 0.1015152633190155
+  },
+  {
+    "name": "_backbone.img_neck.layer_blocks.3.0",
+    "gain": -0.024122625589370728,
+    "drift": 1.1285868361592293,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.11571068316698074
+  },
+  {
+    "name": "_backbone.img_neck.inner_blocks.3.0",
+    "gain": -0.025561794638633728,
+    "drift": 1.1300260052084923,
+    "argmax": 0.25,
+    "traj_l1": 0.10619690269231796
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_deform_model.kps_generator.learnable_fc",
+    "gain": -0.02586454153060913,
+    "drift": 1.1303287521004677,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.10483882576227188
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_attention.in_proj",
+    "gain": -0.026754051446914673,
+    "drift": 1.1312182620167732,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.11696142703294754
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_attention.out_proj",
+    "gain": -0.02722766250371933,
+    "drift": 1.1316918730735779,
+    "argmax": 0.25,
+    "traj_l1": 0.10296159982681274
+  },
+  {
+    "name": "_backbone.img_backbone.layer1.1.conv2",
+    "gain": -0.029182083904743195,
+    "drift": 1.1336462944746017,
+    "argmax": 0.125,
+    "traj_l1": 0.12755505740642548
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.0.conv1",
+    "gain": -0.029229000210762024,
+    "drift": 1.1336932107806206,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.11098837107419968
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.3.conv2",
+    "gain": -0.029306434094905853,
+    "drift": 1.1337706446647644,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.11145228147506714
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.1.conv1",
+    "gain": -0.02970372885465622,
+    "drift": 1.1341679394245148,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.12895873188972473
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_deform_model.camera_encoder.0",
+    "gain": -0.03080172836780548,
+    "drift": 1.135265938937664,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.11852037161588669
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.2.conv1",
+    "gain": -0.03132673352956772,
+    "drift": 1.1357909440994263,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.1064138412475586
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.3.conv1",
+    "gain": -0.032710276544094086,
+    "drift": 1.1371744871139526,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.11618900299072266
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.2.conv2",
+    "gain": -0.03505655378103256,
+    "drift": 1.1395207643508911,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.11921238899230957
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.0.conv2",
+    "gain": -0.03632035106420517,
+    "drift": 1.1407845616340637,
+    "argmax": 0.25,
+    "traj_l1": 0.12187594175338745
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.1.conv1",
+    "gain": -0.03664803504943848,
+    "drift": 1.141112245619297,
+    "argmax": 0.3333333333333333,
+    "traj_l1": 0.11602882295846939
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.2.conv2",
+    "gain": -0.0375499352812767,
+    "drift": 1.1420141458511353,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.12333512306213379
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.3.conv1",
+    "gain": -0.03870517760515213,
+    "drift": 1.1431693881750107,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.1350167840719223
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.0.downsample.0",
+    "gain": -0.03931785374879837,
+    "drift": 1.143782064318657,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.128987118601799
+  },
+  {
+    "name": "_backbone.img_backbone.conv1",
+    "gain": -0.040184177458286285,
+    "drift": 1.1446483880281448,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.1307184249162674
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.v_ffn.2",
+    "gain": -0.041176944971084595,
+    "drift": 1.1456411555409431,
+    "argmax": 0.125,
+    "traj_l1": 0.11676497012376785
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.2.conv1",
+    "gain": -0.04144563525915146,
+    "drift": 1.14590984582901,
+    "argmax": 0.25,
+    "traj_l1": 0.12784022092819214
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.0.conv1",
+    "gain": -0.042660877108573914,
+    "drift": 1.1471250876784325,
+    "argmax": 0.125,
+    "traj_l1": 0.11633952707052231
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.4.conv1",
+    "gain": -0.044215790927410126,
+    "drift": 1.1486800014972687,
+    "argmax": 0.25,
+    "traj_l1": 0.11413183808326721
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.p_deform_model.weights_fc",
+    "gain": -0.04511287063360214,
+    "drift": 1.1495770812034607,
+    "argmax": 0.125,
+    "traj_l1": 0.12934118509292603
+  },
+  {
+    "name": "_backbone.img_backbone.layer1.2.conv2",
+    "gain": -0.046193867921829224,
+    "drift": 1.1506580784916878,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.12039143592119217
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.0.conv1",
+    "gain": -0.048787154257297516,
+    "drift": 1.153251364827156,
+    "argmax": 0.25,
+    "traj_l1": 0.13475234806537628
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.2.conv1",
+    "gain": -0.049267254769802094,
+    "drift": 1.1537314653396606,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.12627601623535156
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.v_attention.out_proj",
+    "gain": -0.049939632415771484,
+    "drift": 1.15440384298563,
+    "argmax": 0.125,
+    "traj_l1": 0.1222786083817482
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.1.conv2",
+    "gain": -0.05129299312829971,
+    "drift": 1.1557572036981583,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.14727415144443512
+  },
+  {
+    "name": "_backbone.img_neck.inner_blocks.1.0",
+    "gain": -0.05230160802602768,
+    "drift": 1.1567658185958862,
+    "argmax": 0.25,
+    "traj_l1": 0.13867425918579102
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.1.p_deform_model.output_proj",
+    "gain": -0.05307257920503616,
+    "drift": 1.1575367897748947,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.14034073054790497
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.0.downsample.0",
+    "gain": -0.05333460122346878,
+    "drift": 1.1577988117933273,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.1495143622159958
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.0.downsample.0",
+    "gain": -0.05376125127077103,
+    "drift": 1.1582254618406296,
+    "argmax": 0.2916666666666667,
+    "traj_l1": 0.13138584792613983
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.3.conv2",
+    "gain": -0.05513545125722885,
+    "drift": 1.1595996618270874,
+    "argmax": 0.25,
+    "traj_l1": 0.12160944938659668
+  },
+  {
+    "name": "_backbone.img_backbone.layer2.0.conv2",
+    "gain": -0.055167101323604584,
+    "drift": 1.1596313118934631,
+    "argmax": 0.20833333333333334,
+    "traj_l1": 0.13907665014266968
+  },
+  {
+    "name": "_backbone.img_backbone.layer4.1.conv1",
+    "gain": -0.055803366005420685,
+    "drift": 1.1602675765752792,
+    "argmax": 0.25,
+    "traj_l1": 0.13409040868282318
+  },
+  {
+    "name": "_backbone.img_backbone.layer3.4.conv2",
+    "gain": -0.07879111915826797,
+    "drift": 1.1832553297281265,
+    "argmax": 0.125,
+    "traj_l1": 0.14501525461673737
+  },
+  {
+    "name": "_trajectory_head.decoder.layers.0.v_ffn.0",
+    "gain": -0.09387137740850449,
+    "drift": 1.198335587978363,
+    "argmax": 0.16666666666666666,
+    "traj_l1": 0.10251373052597046
+  }
+]

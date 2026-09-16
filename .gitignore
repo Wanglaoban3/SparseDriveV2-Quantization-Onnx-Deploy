@@ -1,0 +1,46 @@
+# python
+*.pyc
+**/__pycache__/
+.pytest_cache/*
+.pydevproject
+
+# IDE
+.vscode/*
+
+# Pip
+*.egg-info
+
+# files
+*.log
+*.pkl
+*.jpg
+*.pcd
+
+# exp
+exp
+
+# data
+
+# lsf
+*.bsub
+
+# running scripts
+scripts_dev/*
+
+ckpt/
+dataset/
+exp/
+vis/
+
+build/
+*.so
+
+# deploy artifacts: large / regenerable, see deploy/README.md
+deploy/artifacts/*.onnx
+deploy/artifacts/*.pt
+deploy/artifacts/calib/
+
+# platform-local helper scripts (not part of the cross-platform pipeline)
+*.bat
+*.pyd
+deploy/artifacts/engine_ref/

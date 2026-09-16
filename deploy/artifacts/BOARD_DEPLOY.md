@@ -53,9 +53,10 @@
 | +蒸馏QAT(保留最优) | 20.8% | 9.5cm | 0.450 | **0.656** | **1.0925m** |
 
 - 规划质量结论：最终量化模型相对GT的规划距离1.0925m vs FP32的1.0923m，**差异0.2mm量级**
-- **端到端PDMS验证**（138场景同口径，`deploy/pdms_eval_quant.py`）：FP32 0.7440 vs
-  最终交付（fake-quant）0.7471，111/138场景逐分一致（14升/13降）——数据集指标与原版持平，
-  证据见 `pdms_report.json` + `pdms_fp32.csv` / `pdms_int8_qat.csv`
+- **端到端PDMS验证**（138场景同口径，`deploy/pdms_eval_quant.py` + `deploy/pdms_eval_configs.py`）：
+  FP32 0.7440 / 全INT8 0.7432 / 保护PTQ 0.7533 / 最终交付（fake-quant）0.7471——四配置全部在
+  临界场景翻转噪声内，最终交付与FP32逐分一致111/138场景，数据集指标与原版持平，
+  证据见 `pdms_report.json`、`pdms_configs_report.json` + `pdms_*.csv`
 - argmax翻转发生在得分接近的相似轨迹之间（400选1），几何影响很小（traj_l1≈9.5cm）
 - MHA投影已通过模块替换纳入INT8量化（169→189对Q/DQ节点）
 - 敏感层Top：_status_encoding（收益极小的tiny Linear）、v_attention/v_img_attention投影、backbone.layer1卷积（见sensitivity.json，已回退FP16）
@@ -187,6 +188,27 @@
 2–5 名集中在 decoder 的注意力投影；backbone 只有浅层个别卷积进入前列——
 这解释了为什么「Top-12 回退」基本都落在 status_encoding + 注意力投影 + 浅层卷积上。
 gain≈0 的其余 90+ 模块对 INT8 不敏感，全部保持量化。
+
+### PDMS 端到端复核（第二标准，deploy/pdms_sensitivity.py）
+
+metric-MAE 是 **logits 级**漂移，灵敏度高但不是部署指标；用**后处理后的 PDMS**（argmax 轨迹过
+navsim PDM 仿真+打分，与数据集评测完全同口径）逐模块复核：基座=全INT8，逐个排除单个模块，
+在 24 个校准集外样本上重测（`sensitivity_pdms.json/csv`，含 MAE 增益交叉参照列）。
+
+| 模块（MAE 标准排名） | MAE gain | PDMS gain（排除该层） | PDMS 排名 |
+|---|---|---|---|
+| `_status_encoding`（MAE #1） | 0.197 | **−0.0019（≈0）** | 末段 |
+| `layers.0.v_attention.out_proj`（#2） | 0.045 | −0.0001 | 101/106 |
+| `layers.1.v_img_attention.in_proj`（#3） | 0.027 | −0.0000 | 84/106 |
+| `layers.1.p_attention.in_proj`（#5） | 0.017 | +0.0030 | 4/106 |
+| `backbone.layer1.1.conv1`（#6） | 0.013 | +0.0032 | 3/106 |
+
+- 同批 24 样本上：FP32 PDMS 0.7939 vs 全INT8 0.7897（总差距仅 −0.0042）；单层排除的最大增益
+  仅 **+0.0048**，在 24 场景采样噪声（SE≈0.02）以内，且 PDMS 排序与 MAE 排序基本不相关
+- **结论**：logits 漂移传导不到场景级得分——逐层量化对数据集指标均无感；MAE 标准继续用作
+  回退层的"定位器"（灵敏度高、计算便宜），Top-12 回退是保险而非必需。全量 138 场景四配置
+  对照（FP32 0.7440 / 全INT8 0.7432 / 保护PTQ 0.7533 / QAT 0.7471）见
+  `pdms_configs_report.json`
 
 ## 引擎构建前的解析验证（无需GPU）
 

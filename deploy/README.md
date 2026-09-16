@@ -103,15 +103,25 @@ python deploy/bench_baseline.py   # fp32 延迟基准
 
 ## 端到端 PDMS（数据集指标 vs 原版）
 ```bash
-python deploy/pdms_eval_quant.py    # FP32 与 最终INT8(fake-quant) 各跑一遍138场景PDMS
+python deploy/pdms_eval_quant.py      # FP32 与 最终INT8(fake-quant) 各跑一遍138场景
+python deploy/pdms_eval_configs.py    # 补测 全INT8 PTQ / 保护PTQ(Top-12回退) 的138场景
+python deploy/pdms_sensitivity.py     # 敏感层PDMS复核：106模块 × 24校准集外样本（约1h）
 ```
 同一批 138 场景、与 navsim `run_pdm_score_navtest_v1_fast` 完全同口径（PDMSimulator+PDMScorer，
 40×0.1s proposal，agent 轨迹 8×0.5s）：
 
-| 模型 | PDMS | 逐分一致场景 |
-|---|---|---|
-| FP32 | 0.7440 | — |
-| **INT8+Top-12回退+蒸馏QAT（最终交付）** | **0.7471** | 111/138（14升/13降，净差+0.003） |
+| 配置 | PDMS | Δ vs FP32 | 备注 |
+|---|---|---|---|
+| FP32（原版） | 0.7440 | — | 历史 agent 链路基线 0.739（±0.005 为链路/场景翻转噪声） |
+| 全 INT8 PTQ | 0.7432 | −0.0008 | |
+| 保护 PTQ（Top-12 回退） | 0.7533 | +0.0092 | 临界场景翻转，量级仍在噪声内 |
+| **INT8+回退+蒸馏QAT（最终交付）** | **0.7471** | +0.0031 | 与 FP32 逐分一致 111/138 场景 |
 
-证据落盘：`artifacts/pdms_report.json`、逐场景 `pdms_fp32.csv` / `pdms_int8_qat.csv`。
-量化交付在数据集端到端指标上与原版持平。
+**敏感层双标准**：`ptq_pipeline.py --stage sensitivity` 的 metric-MAE 漂移用于**排序选回退层**
+（logits 级灵敏度高）；`pdms_sensitivity.py` 用**后处理后的 PDMS** 复核（逐个排除模块、24 个
+校准集外样本、与数据集评测同口径打分）。复核结论：单层 PDMS 增益全部 ≤0.005 且与 MAE 排序
+基本不相关（MAE 头号层 `_status_encoding` 的 PDMS 增益 ≈0）——逐层量化对数据集指标均无感，
+Top-12 回退是保险而非必需。
+
+证据落盘：`artifacts/pdms_report.json`、`pdms_configs_report.json`、
+`sensitivity_pdms.json/csv` 及逐场景 `pdms_*.csv`。

@@ -74,11 +74,25 @@
 
 **其他关键数字**：
 
-- 端到端 PDMS 对比（138 场景同口径，`deploy/pdms_eval_quant.py`）：FP32 **0.744** vs
-  最终 INT8 交付（fake-quant）**0.747** —— 111/138 场景逐分一致（14 升 / 13 降），
-  量化在数据集指标上与原版持平；历史 agent 链路基线 0.739，链路间 ±0.005 为临界场景翻转噪声
-  （上游全量 navtest 为 92.22，mini 子集分布不同，只用于横向对比）
-  （证据：`deploy/artifacts/pdms_report.json` + 逐场景 `pdms_fp32.csv` / `pdms_int8_qat.csv`）
+**数据集端到端 PDMS**（138 场景同口径，`deploy/pdms_eval_quant.py` + `deploy/pdms_eval_configs.py`）：
+
+| 配置 | PDMS | Δ vs FP32 |
+|---|---|---|
+| FP32（原版） | 0.7440 | — |
+| 全 INT8 PTQ | 0.7432 | −0.0008 |
+| 保护 PTQ（Top-12 回退） | 0.7533 | +0.0092 |
+| **+ 蒸馏 QAT（最终交付）** | **0.7471** | +0.0031 |
+
+四个配置全部在临界场景翻转噪声内（FP32 与最终交付 111/138 场景逐分一致；历史 agent 链路
+基线 0.739，链路间 ±0.005 同为噪声量级；上游全量 navtest 92.22，mini 子集分布不同仅作横向参考）。
+**结论：量化交付在数据集端到端指标上与原版持平。**
+（证据：`deploy/artifacts/pdms_report.json`、`pdms_configs_report.json` 及逐场景 CSV）
+
+- **敏感层扫描双标准**（106 模块）：metric-MAE 漂移（logits 级，灵敏度高，用于选 Top-12 回退）
+  + PDMS 端到端复核（`deploy/pdms_sensitivity.py`，24 个校准集外样本）。PDMS 标准下单层增益
+  全部 ≤0.005 且与 MAE 排序基本不相关——MAE 头号敏感层 `_status_encoding`（gain 0.197）的
+  PDMS 增益 ≈0：**逐层量化对数据集指标均无感，回退是"保险"而非"必需"**。
+  （证据：`deploy/artifacts/sensitivity_pdms.json/csv`）
 - DFA feat-INT8（per-C）增量：端到端 metric MAE **+0.041**（仅为全模型 QDQ 漂移的 1/16），
   DFA 输出 cosine 0.99986，轨迹 argmax 一致率 100%
 - **负结果同样记录在案**（详见 `deploy/artifacts/BOARD_DEPLOY.md`）：

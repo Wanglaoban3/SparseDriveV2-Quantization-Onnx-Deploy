@@ -106,6 +106,7 @@ python deploy/bench_baseline.py   # fp32 延迟基准
 python deploy/pdms_eval_quant.py      # FP32 与 最终INT8(fake-quant) 各跑一遍138场景
 python deploy/pdms_eval_configs.py    # 补测 全INT8 PTQ / 保护PTQ(Top-12回退) 的138场景
 python deploy/pdms_sensitivity.py     # 敏感层PDMS复核：106模块 × 24校准集外样本（约1h）
+python deploy/pdms_eval_navtest.py    # navtest 全量验收：4配置 × 12146场景（断点续跑）
 ```
 同一批 138 场景、与 navsim `run_pdm_score_navtest_v1_fast` 完全同口径（PDMSimulator+PDMScorer，
 40×0.1s proposal，agent 轨迹 8×0.5s）：
@@ -117,6 +118,20 @@ python deploy/pdms_sensitivity.py     # 敏感层PDMS复核：106模块 × 24校
 | 保护 PTQ（Top-12 回退） | 0.7533 | +0.0092 | 临界场景翻转，量级仍在噪声内 |
 | **INT8+回退+蒸馏QAT（最终交付）** | **0.7471** | +0.0031 | 与 FP32 逐分一致 111/138 场景 |
 
+**navtest 全量验收**（OpenScene test split，136 日志 / 12,146 场景；量化候选仍用 mini 校准
+样本校准，与交付 QDQ ONNX 同源；需先构建 `exp/data_cache_navtest` 特征缓存与
+`exp/metric_cache_navtestv1` 指标缓存，评测解释器用 navsim 环境）：
+
+| 配置 | PDMS | Δ vs FP32 |
+|---|---|---|
+| FP32（原版） | 0.9141 | — |
+| 全 INT8 PTQ | 0.9131 | −0.0009 |
+| 保护 PTQ（Top-12 回退） | 0.9138 | −0.0002 |
+| **INT8+回退+蒸馏QAT（最终交付）** | **0.9138** | **−0.0003** |
+
+大样本下排序恢复单调、量化损耗全部压到 0.001 量级；mini 138 场景的"反升"
+确认为小样本临界场景翻转噪声。**最终交付在官方 navtest 协议下与 FP32 相比精度无损。**
+
 **敏感层双标准**：`ptq_pipeline.py --stage sensitivity` 的 metric-MAE 漂移用于**排序选回退层**
 （logits 级灵敏度高）；`pdms_sensitivity.py` 用**后处理后的 PDMS** 复核（逐个排除模块、24 个
 校准集外样本、与数据集评测同口径打分）。复核结论：单层 PDMS 增益全部 ≤0.005 且与 MAE 排序
@@ -124,4 +139,4 @@ python deploy/pdms_sensitivity.py     # 敏感层PDMS复核：106模块 × 24校
 Top-12 回退是保险而非必需。
 
 证据落盘：`artifacts/pdms_report.json`、`pdms_configs_report.json`、
-`sensitivity_pdms.json/csv` 及逐场景 `pdms_*.csv`。
+`sensitivity_pdms.json/csv`、`pdms_navtest_report.json` 及逐场景 `pdms_*.csv`。

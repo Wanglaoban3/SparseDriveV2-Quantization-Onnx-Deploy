@@ -1,0 +1,48 @@
+{
+  "protocol": "navsim v1 PDMS, PDMSimulator+PDMScorer(40x0.1s), agent traj 8x0.5s, navtest (OpenScene test split, 12146 scenes); quant candidates calibrated on the mini split like the delivered QDQ ONNX",
+  "n_scenes": 12146,
+  "configs": {
+    "fp32": {
+      "no_at_fault_collisions": 0.9855096328009221,
+      "drivable_area_compliance": 0.9860859542236127,
+      "ego_progress": 0.8698655901592369,
+      "time_to_collision_within_bound": 0.9485427301169109,
+      "comfort": 0.9989296887864317,
+      "driving_direction_compliance": 0.9638564136341182,
+      "score": 0.9140514971212161
+    },
+    "ptq": {
+      "no_at_fault_collisions": 0.9854684669850157,
+      "drivable_area_compliance": 0.985591964432735,
+      "ego_progress": 0.8692383983259485,
+      "time_to_collision_within_bound": 0.9478017454305945,
+      "comfort": 0.9987650255228059,
+      "driving_direction_compliance": 0.96488555903178,
+      "score": 0.9131347599422145
+    },
+    "protected": {
+      "no_at_fault_collisions": 0.9851803062736704,
+      "drivable_area_compliance": 0.9859212909599868,
+      "ego_progress": 0.8687106194543527,
+      "time_to_collision_within_bound": 0.9492013831714144,
+      "comfort": 0.9990120204182447,
+      "driving_direction_compliance": 0.9630330973159889,
+      "score": 0.9138481937421888
+    },
+    "qat": {
+      "no_at_fault_collisions": 0.9858389593281739,
+      "drivable_area_compliance": 0.9860036225917997,
+      "ego_progress": 0.8700532237914341,
+      "time_to_collision_within_bound": 0.9478017454305945,
+      "comfort": 0.9990943520500576,
+      "driving_direction_compliance": 0.96418574016137,
+      "score": 0.9137986943547527
+    }
+  },
+  "deltas_vs_fp32": {
+    "fp32": 0.0,
+    "ptq": -0.0009167371790016476,
+    "protected": -0.00020330337902729756,
+    "qat": -0.0002528027664634447
+  }
+}

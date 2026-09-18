@@ -88,6 +88,22 @@
 **结论：量化交付在数据集端到端指标上与原版持平。**
 （证据：`deploy/artifacts/pdms_report.json`、`pdms_configs_report.json` 及逐场景 CSV）
 
+**navtest 全量验收**（OpenScene test split，136 日志 / 12,146 场景，`deploy/pdms_eval_navtest.py`；
+量化候选仍用 mini 校准样本校准，与交付 QDQ ONNX 完全同源，仅更换评测 split）：
+
+| 配置 | PDMS | Δ vs FP32 |
+|---|---|---|
+| FP32（原版） | 0.9141 | — |
+| 全 INT8 PTQ | 0.9131 | −0.0009 |
+| 保护 PTQ（Top-12 回退） | 0.9138 | −0.0002 |
+| **+ 蒸馏 QAT（最终交付）** | **0.9138** | **−0.0003** |
+
+全量 12k 场景下所有量化配置损耗均被压到 0.001 量级：保护 PTQ 与 QAT 对 FP32 实质无损，
+全 INT8 PTQ 最差也仅 −0.0009。mini 子集（138 场景）曾出现的"量化后 PDMS 反升"
+确认为小样本临界场景翻转噪声，大样本下排序恢复单调。**结论：最终交付在官方 navtest
+协议下与 FP32 相比精度无损。**
+（证据：`deploy/artifacts/pdms_navtest_report.json` 及逐场景 CSV）
+
 - **敏感层扫描双标准**（106 模块）：metric-MAE 漂移（logits 级，灵敏度高，用于选 Top-12 回退）
   + PDMS 端到端复核（`deploy/pdms_sensitivity.py`，24 个校准集外样本）。PDMS 标准下单层增益
   全部 ≤0.005 且与 MAE 排序基本不相关——MAE 头号敏感层 `_status_encoding`（gain 0.197）的

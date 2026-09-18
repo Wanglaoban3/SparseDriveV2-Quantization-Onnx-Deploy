@@ -57,6 +57,11 @@
   FP32 0.7440 / 全INT8 0.7432 / 保护PTQ 0.7533 / 最终交付（fake-quant）0.7471——四配置全部在
   临界场景翻转噪声内，最终交付与FP32逐分一致111/138场景，数据集指标与原版持平，
   证据见 `pdms_report.json`、`pdms_configs_report.json` + `pdms_*.csv`
+- **navtest全量验收**（OpenScene test split，12,146场景，`deploy/pdms_eval_navtest.py`；
+  量化候选仍用mini校准样本，与交付QDQ ONNX同源）：FP32 **0.9141** / 全INT8 PTQ 0.9131（−0.0009）/
+  保护PTQ 0.9138（−0.0002）/ **最终交付 0.9138（−0.0003）**——大样本下排序恢复单调，
+  量化损耗全部压到0.001量级，mini 138场景的"反升"确认为小样本临界场景翻转噪声。
+  **最终交付在官方navtest协议下与FP32相比精度无损**，证据见 `pdms_navtest_report.json` + `pdms_navtest_*.csv`
 - argmax翻转发生在得分接近的相似轨迹之间（400选1），几何影响很小（traj_l1≈9.5cm）
 - MHA投影已通过模块替换纳入INT8量化（169→189对Q/DQ节点）
 - 敏感层Top：_status_encoding（收益极小的tiny Linear）、v_attention/v_img_attention投影、backbone.layer1卷积（见sensitivity.json，已回退FP16）

@@ -1,0 +1,40 @@
+{
+  "src": "sparsedrive_int8_qdq_feat8_folded.onnx",
+  "dst": "sparsedrive_int8_qdq_feat8_folded.onnx",
+  "folded_weight_q": 94,
+  "constants_folded": 695,
+  "constants_unique_after_dedup": 475,
+  "initializers_pruned": 94,
+  "scale_zp_relocation_checks": 568,
+  "scale_zp_preexisting_initializers": 6,
+  "before": {
+    "nodes": 1909,
+    "initializers": 350,
+    "constant_nodes": 695,
+    "quantize_linear": 192,
+    "dequantize_linear": 189,
+    "initializer_dtypes": {
+      "FLOAT": 349,
+      "INT8": 1
+    }
+  },
+  "after": {
+    "nodes": 1120,
+    "initializers": 919,
+    "constant_nodes": 0,
+    "quantize_linear": 98,
+    "dequantize_linear": 189,
+    "initializer_dtypes": {
+      "FLOAT": 551,
+      "INT8": 284,
+      "INT64": 83,
+      "INT32": 1
+    }
+  },
+  "parity": {
+    "mode": "qdq_chain_ort_replay",
+    "n_chains": 94,
+    "bitwise_equal": true,
+    "max_abs_diff": 0.0
+  }
+}

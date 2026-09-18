@@ -282,3 +282,21 @@ TRT tactic 选择。
   - 折叠不含 MatMul/Conv/LN，数值逐位等价；onnx checker 通过
 - **使用**：板端编译推荐输入 sparsedrive_int8_qdq_feat8_folded.onnx；
   python deploy/simplify_graph.py <in.onnx> <out.onnx> 可对任意导出产物重跑。
+
+## QDQ 结构标准化（qdq_onnx_rewrite pass，2026-09-18）
+- **动机**：torch 侧导出的 QDQ 把每个 Q/DQ 的 scale/zp 放在图体内 Constant 节点（695 个、
+  其中 220 个内容重复），权重表达为"浮点 initializer + 图内 QuantizeLinear+DequantizeLinear"，
+  与标准 ONNX 量化产物（onnxruntime quantize_static / modelopt.onnx.quantization）的
+  "int8 initializer → DQ + 共享 scale/zp initializer"样式不一致，Netron 可读性差。
+- **变换**（deploy/qdq_onnx_rewrite.py，纯表示层）：94 个权重 Q 按 ONNX 规范离线量化
+  （saturate(round(x/scale)+zp)，round half-to-even，含 per-axis 广播）为 int8 initializer；
+  全部 Constant 迁移为 initializer 并按内容去重（695→475）；剪枝失去引用的浮点权重（94 个）；
+  严格拓扑重排序。结果：节点 1909→1120，Constant 节点 695→0。
+- **等价性验证**（无需 GPU / 无需自定义算子库）：
+  - 94 条折叠链在 ORT 中以最小图重放（原 Q→DQ vs 新 int8→DQ，同一组 scale/zp/axis）
+    **全部逐位相等（max|Δ|=0.0）**——以 ORT 自身的舍入/广播实现为裁判；
+  - 568 个迁移后的 scale/zp initializer 与原 Constant 张量字节相等（另有 6 个本就是 initializer）；
+  - onnx checker 通过（含拓扑排序校验）。
+- **产物**：sparsedrive_int8_qdq_feat8_folded.onnx（+38MB，为 94 份 int8 权重副本的体积，
+  源于共享权重在图内按 site 复制量化；TRT 解析无影响）；原文件保留为
+  *_pre_rewrite.onnx；报告 *_rewrite_report.json。

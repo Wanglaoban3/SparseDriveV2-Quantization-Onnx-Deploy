@@ -67,6 +67,19 @@ python deploy/simplify_graph.py artifacts/sparsedrive_int8_qdq_feat8.onnx artifa
 静态 shape 下把导出残留的形状推导管线折叠为常量（节点数 -32%），Q/DQ 与 DFA 节点不动；
 结构级断言保证量化语义不变。板端编译推荐使用 folded 版本。
 
+### 5b. QDQ 结构标准化（Constant → initializer）
+```bash
+python deploy/qdq_onnx_rewrite.py artifacts/sparsedrive_int8_qdq_feat8_folded.onnx
+```
+torch 导出的 QDQ 把每个 Q/DQ 的 scale/zp 放在图体内 Constant 节点（695 个、含 220 重复），
+权重以"浮点 initializer + 图内 Q+DQ"表达。本 pass 重构为标准 ONNX 量化样式（与
+onnxruntime quantize_static / modelopt.onnx.quantization 产物同构）：
+权重离线量化为 **int8 initializer → DequantizeLinear**，scale/zp 变为**共享 initializer**，
+Constant 节点归零（节点数 1909→1120），并做严格拓扑排序。
+**纯表示层变换、数值逐位不变**：94 条权重链在 ORT 中以最小图重放（Q→DQ vs int8→DQ）
+全部逐位相等，568 个 scale/zp 迁移前后字节相等（报告 `*_rewrite_report.json`；
+原文件备份为 `*_pre_rewrite.onnx`）。板端编译推荐使用重写后版本。
+
 ### 6. 验证/基准工具
 ```
 python deploy/verify_opt.py       # 当前图输出 vs 已存FP32参考（应逐位一致）+ 延迟

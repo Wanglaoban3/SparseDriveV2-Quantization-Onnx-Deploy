@@ -32,6 +32,49 @@ class SparseDriveModel(nn.Module):
             config=config,
         )
 
+    def apply_rl_finetune(self):
+        """Freeze everything except the scoring modules selected by config.train_scope.
+
+        Call AFTER loading the IL checkpoint. Frozen submodules are kept in eval mode by the
+        train() override below, so BatchNorm running stats stay fixed and dropout inside frozen
+        branches is disabled (deterministic features for the scorer heads to fit).
+        """
+        cfg = self._config
+        if not cfg.rl_finetune:
+            return
+        if cfg.train_scope not in ("scorer_heads", "traj_branch"):
+            raise ValueError(f"Unknown train_scope: {cfg.train_scope}")
+
+        last = f"_trajectory_head.decoder.layers.{cfg.decoder_num_layers - 1}."
+        if cfg.train_scope == "scorer_heads":
+            trainable_prefixes = (last + "traj_mlp", last + "metric_heads")
+        else:
+            trainable_prefixes = (last + "t_", last + "traj_mlp", last + "metric_heads")
+
+        for param in self.parameters():
+            param.requires_grad_(False)
+        for name, param in self.named_parameters():
+            if name.startswith(trainable_prefixes):
+                param.requires_grad_(True)
+
+    def trainable_parameters(self):
+        return [param for param in self.parameters() if param.requires_grad]
+
+    def train(self, mode: bool = True):
+        super().train(mode)
+        if self._config.rl_finetune and mode:
+            # pl.Trainer calls train() every epoch; re-apply eval to frozen submodules so
+            # dropout inside them stays off and BN stats stay fixed
+            last = f"_trajectory_head.decoder.layers.{self._config.decoder_num_layers - 1}."
+            if self._config.train_scope == "scorer_heads":
+                trainable_prefixes = (last + "traj_mlp", last + "metric_heads")
+            else:
+                trainable_prefixes = (last + "t_", last + "traj_mlp", last + "metric_heads")
+            for name, module in self.named_modules():
+                if name and not name.startswith(trainable_prefixes):
+                    module.eval()
+        return self
+
     def forward(self, features: Dict[str, torch.Tensor], targets: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """Torch module forward pass."""
         camera_feature: torch.Tensor = features["camera_feature"]

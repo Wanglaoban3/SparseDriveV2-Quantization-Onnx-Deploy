@@ -47,6 +47,20 @@ class SparseDriveAgent(AbstractAgent):
         self._checkpoint_path = checkpoint_path
         self._sparsedrive_model = SparseDriveModel(config)
 
+        if config.rl_finetune and checkpoint_path is not None:
+            # load the IL checkpoint into the fresh model (training does not call initialize());
+            # the GRPO KL anchor (RefTrajBranch) is created lazily at the first training forward —
+            # by then PL has moved the model to the GPU and these weights are already loaded
+            state_dict: Dict[str, Any] = torch.load(checkpoint_path, map_location="cpu")["state_dict"]
+            model_state = {}
+            for key, value in state_dict.items():
+                key = key.replace("agent.", "")
+                if key.startswith("_sparsedrive_model."):
+                    key = key[len("_sparsedrive_model."):]
+                model_state[key] = value
+            self._sparsedrive_model.load_state_dict(model_state)
+            self._sparsedrive_model.apply_rl_finetune()
+
     def name(self) -> str:
         """Inherited, see superclass."""
         return self.__class__.__name__
@@ -99,7 +113,10 @@ class SparseDriveAgent(AbstractAgent):
 
     def get_optimizers(self) -> Union[Optimizer, Dict[str, Union[Optimizer, LRScheduler]]]:
         """Inherited, see superclass."""
-        return torch.optim.Adam(self._sparsedrive_model.parameters(), lr=self._lr)
+        # frozen parameters (no grads) are excluded so the optimizer state matches the trainable set
+        return torch.optim.Adam(
+            [p for p in self._sparsedrive_model.parameters() if p.requires_grad], lr=self._lr
+        )
 
     def get_training_callbacks(self) -> List[pl.Callback]:
         """Inherited, see superclass."""

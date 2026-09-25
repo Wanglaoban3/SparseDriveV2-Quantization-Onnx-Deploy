@@ -1,3 +1,5 @@
+import copy
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -7,6 +9,12 @@ from navsim.agents.sparsedrive.ops import deformable_format
 from navsim.common.dataclasses import Trajectory
 
 from .blocks import DeformableFeatureAggregation
+from .rl_finetune import (
+    composition_loss as reward_composition_loss,
+    grpo_loss,
+    reward_ce_loss,
+    rewards_from_sub_scores,
+)
 from .scorer.get_pdm_score_v1 import get_pdm_score_para as get_pdm_score_v1
 from .scorer.get_pdm_score_v2 import get_pdm_score_para as get_pdm_score_v2
 
@@ -14,6 +22,65 @@ from .scorer.get_pdm_score_v2 import get_pdm_score_para as get_pdm_score_v2
 def _get_clones(module, N):
     # FIXME: copy.deepcopy() is not defined on nn.module
     return nn.ModuleList([copy.deepcopy(module) for i in range(N)])
+
+
+class RefTrajBranch(nn.Module):
+    """Frozen copy of the last-layer scoring branch, used as the GRPO KL anchor (pi_ref).
+
+    Not registered as a regular submodule of the layer (kept out of state_dict and out of
+    train()/eval() recursion): it is created from the IL weights at fine-tuning start and must
+    stay deterministic, so it permanently stays in eval mode.
+    """
+
+    def __init__(self, layer: "CustomTransformerDecoderLayer", mode: str):
+        super().__init__()
+        self._mode = mode
+        if mode == "branch":
+            self.t_deform_model = copy.deepcopy(layer.t_deform_model)
+            self.t_attention = copy.deepcopy(layer.t_attention)
+            self.t_dropout1 = copy.deepcopy(layer.t_dropout1)
+            self.t_ffn = copy.deepcopy(layer.t_ffn)
+            self.t_norm1 = copy.deepcopy(layer.t_norm1)
+            self.t_dropout2 = copy.deepcopy(layer.t_dropout2)
+            self.t_norm2 = copy.deepcopy(layer.t_norm2)
+        self.traj_mlp = copy.deepcopy(layer.traj_mlp)
+        for p in self.parameters():
+            p.requires_grad_(False)
+        self.eval()
+
+    @torch.no_grad()
+    def from_embed(self, traj_emed: torch.Tensor) -> torch.Tensor:
+        """Reference traj_scores from the post-branch embedding (for train_scope="scorer_heads",
+        where the t_* stack is frozen and shared with the current policy)."""
+        self._match_device(traj_emed)
+        return self.traj_mlp(traj_emed).squeeze(-1)
+
+    @torch.no_grad()
+    def from_inputs(
+        self,
+        filter_path_embed: torch.Tensor,
+        filter_vel_embed: torch.Tensor,
+        filter_traj_vocab_flat: torch.Tensor,
+        deform_value: torch.Tensor,
+        camera_feature: dict,
+    ) -> torch.Tensor:
+        """Reference traj_scores recomputed from the pre-branch input (for train_scope="traj_branch",
+        where the t_* stack itself is trainable and needs a frozen copy)."""
+        self._match_device(filter_path_embed)
+        traj_emed = filter_path_embed.unsqueeze(2) + filter_vel_embed.unsqueeze(1)
+        traj_emed = traj_emed.flatten(1, 2)
+        traj_emed = self.t_deform_model(traj_emed, filter_traj_vocab_flat, None, deform_value, camera_feature, None)
+        traj_emed = traj_emed + self.t_dropout1(self.t_attention(traj_emed, traj_emed, traj_emed)[0])
+        traj_emed = self.t_norm1(traj_emed)
+        traj_emed = traj_emed + self.t_dropout2(self.t_ffn(traj_emed))
+        traj_emed = self.t_norm2(traj_emed)
+        return self.traj_mlp(traj_emed).squeeze(-1)
+
+    def _match_device(self, reference: torch.Tensor):
+        """The ref is kept out of the module tree, so nn.Module.to() skips it; sync it on first use."""
+        ref_device = self.traj_mlp[0].weight.device
+        if ref_device != reference.device:
+            self.to(device=reference.device)
 
 class CustomTransformerDecoder(nn.Module):
     def __init__(self, num_poses, d_model, d_ffn, config):
@@ -149,6 +216,23 @@ class CustomTransformerDecoderLayer(nn.Module):
                     nn.Linear(d_ffn, 1),
                 )
 
+    def setup_grpo_ref(self):
+        """Freeze a copy of the scoring branch as the GRPO KL anchor (pi_ref = the IL policy).
+
+        Must run after the IL checkpoint has been loaded (weights are deep-copied); skipped if
+        the anchor already exists. The copy is not registered as a submodule, so it stays out
+        of state_dict and is never switched back to train mode.
+        """
+        if (
+            self._config.rl_finetune
+            and self._config.grpo_weight > 0
+            and self._config.grpo_kl_weight > 0
+            and self.decoder_idx == self._config.decoder_num_layers - 1
+            and not hasattr(self, "_ref_branch")
+        ):
+            mode = "head" if self._config.train_scope == "scorer_heads" else "branch"
+            object.__setattr__(self, "_ref_branch", RefTrajBranch(self, mode))
+
     def forward(self, path_embed, vel_embed, path_vocab, vel_vocab, traj_vocab, traj_mask,
                 camera_feature, status_encoding, targets,
     ):
@@ -269,7 +353,8 @@ class CustomTransformerDecoderLayer(nn.Module):
                 dist = (filter_traj_vocab.flatten(1, 2) - target_traj[:, None])[..., :2] ** 2
                 dist = dist.sum((-2, -1)) * self._config.trajectory_sigmas
                 traj_loss = F.cross_entropy(traj_scores, (-dist).softmax(1))
-                loss_dict[f'traj_loss_{self.decoder_idx}'] = traj_loss
+                if self._config.keep_il_loss or not self._config.rl_finetune:
+                    loss_dict[f'traj_loss_{self.decoder_idx}'] = traj_loss
 
                 ## metric (requires cached PDM metric files referenced by targets["token_path"];
                 # skipped when absent, e.g. QAT on a mini cache without those paths)
@@ -277,10 +362,18 @@ class CustomTransformerDecoderLayer(nn.Module):
                     trajectory = filter_traj_vocab.flatten(1,2)
                     pdm_token_paths = []
                     for token_path in targets["token_path"]:
-                        pdm_token_path = token_path.replace("data_cache_navtrain", f"metric_cache_navtrain{self._config.dataset_version}")
-                        pdm_token_path_parts = pdm_token_path.split('/')
-                        pdm_token_path_parts.insert(-1, 'unknown')
-                        pdm_token_path = '/'.join(pdm_token_path_parts) + "/metric_cache.pkl"
+                        pdm_token_path = token_path.replace(
+                            self._config.data_cache_prefix,
+                            f"{self._config.metric_cache_prefix}{self._config.dataset_version}",
+                        )
+                        # <cache>/<log>/<token> -> <cache>/<log>/unknown/<token>/metric_cache.pkl
+                        # (os.path so this works with backslash separators on Windows too)
+                        pdm_token_path = os.path.join(
+                            os.path.dirname(pdm_token_path),
+                            'unknown',
+                            os.path.basename(pdm_token_path),
+                            "metric_cache.pkl",
+                        )
                         pdm_token_paths.append(pdm_token_path)
                     if self._config.dataset_version == "v1":
                         sub_scores = get_pdm_score_v1(trajectory, pdm_token_paths)
@@ -292,6 +385,45 @@ class CustomTransformerDecoderLayer(nn.Module):
                         metric_gt[metric_gt == 0.5] = 0.0
                         metric_loss = F.binary_cross_entropy_with_logits(metric_pred, metric_gt)
                         loss_dict[f'{metric}_loss_{self.decoder_idx}'] = metric_loss * self._config.metric_loss_weight
+
+                    ## stage 0/1: reward-aligned losses on the official EPDMS of every final candidate
+                    if self._config.rl_finetune:
+                        reward = rewards_from_sub_scores(sub_scores, metric_pred.device)
+                        if self._config.reward_ce_weight > 0:
+                            loss_dict[f'reward_ce_{self.decoder_idx}'] = (
+                                reward_ce_loss(traj_scores, reward, self._config.reward_tau)
+                                * self._config.reward_ce_weight
+                            )
+                        if self._config.composition_loss_weight > 0:
+                            loss_dict[f'composition_{self.decoder_idx}'] = (
+                                reward_composition_loss(metric_logit, reward, self._config.dataset_version)
+                                * self._config.composition_loss_weight
+                            )
+                        if self._config.grpo_weight > 0:
+                            if self._config.grpo_kl_weight > 0 and not hasattr(self, "_ref_branch"):
+                                self.setup_grpo_ref()
+                            ref_scores = None
+                            if self._config.grpo_kl_weight > 0 and hasattr(self, "_ref_branch"):
+                                if self._config.train_scope == "scorer_heads":
+                                    ref_scores = self._ref_branch.from_embed(traj_emed.detach())
+                                else:
+                                    ref_scores = self._ref_branch.from_inputs(
+                                        filter_path_embed.detach(),
+                                        filter_vel_embed.detach(),
+                                        filter_traj_vocab_flat,
+                                        deform_value,
+                                        camera_feature,
+                                    )
+                            loss_dict[f'grpo_{self.decoder_idx}'] = (
+                                grpo_loss(
+                                    traj_scores,
+                                    reward,
+                                    self._config.grpo_num_samples,
+                                    ref_scores,
+                                    self._config.grpo_kl_weight,
+                                )
+                                * self._config.grpo_weight
+                            )
         
         output = {}
         if self.decoder_idx == self._config.decoder_num_layers - 1:
@@ -318,7 +450,10 @@ class CustomTransformerDecoderLayer(nn.Module):
                 )
 
             bs_indices = torch.arange(scores.shape[0], device=scores.device)
-            mode_indices = scores.argmax(1)
+            # selection_score="traj" switches the argmax to traj_scores (reward-aligned by stage 0);
+            # "metric" keeps the deployed composed metric score
+            selection = traj_scores if (self._config.rl_finetune and self._config.selection_score == "traj") else scores
+            mode_indices = selection.argmax(1)
             trajectory = filter_traj_vocab.flatten(1, 2)[bs_indices, mode_indices]
             output["trajectory"] = trajectory
             # extra outputs for deployment/quantization acceptance (inference only, no math change)

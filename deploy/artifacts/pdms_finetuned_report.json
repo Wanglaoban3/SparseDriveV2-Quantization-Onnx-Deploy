@@ -1,0 +1,49 @@
+{
+  "n_scenes": 138,
+  "base": {
+    "no_at_fault_collisions": 0.8695652173913043,
+    "drivable_area_compliance": 0.9420289855072463,
+    "ego_progress": 0.6928863878254108,
+    "time_to_collision_within_bound": 0.8188405797101449,
+    "comfort": 1.0,
+    "driving_direction_compliance": 0.9818840579710145,
+    "score": 0.7440166712557569
+  },
+  "rl": {
+    "no_at_fault_collisions": 0.8623188405797102,
+    "drivable_area_compliance": 0.9492753623188406,
+    "ego_progress": 0.6938724801095059,
+    "time_to_collision_within_bound": 0.8260869565217391,
+    "comfort": 1.0,
+    "driving_direction_compliance": 0.9855072463768116,
+    "score": 0.7474468667122942
+  },
+  "deltas": {
+    "no_at_fault_collisions": -0.007246376811594124,
+    "drivable_area_compliance": 0.007246376811594235,
+    "ego_progress": 0.0009860922840950748,
+    "time_to_collision_within_bound": 0.007246376811594235,
+    "comfort": 0.0,
+    "driving_direction_compliance": 0.0036231884057971175,
+    "score": 0.0034301954565373327
+  },
+  "scene_diff": {
+    "identical": 97,
+    "improved": 22,
+    "degraded": 19
+  },
+  "worst_scenes": [
+    96,
+    122,
+    106,
+    100,
+    136
+  ],
+  "best_scenes": [
+    78,
+    61,
+    68,
+    112,
+    69
+  ]
+}

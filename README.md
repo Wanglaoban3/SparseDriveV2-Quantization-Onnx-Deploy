@@ -167,6 +167,32 @@ python deploy/artifacts/build_engine.py \
 - [ ] **ONNX Runtime 自定义算子**（CPU/CUDA EP 回退，非 TRT 平台可运行）
 - [ ] DFA per-point scale（实测 relL2 0.47%，作为高精度可选档）
 
+## RL 后训练（stage 0/1：reward 对齐 + GRPO）
+
+在 IL checkpoint 之上做 reward-aligned fine-tuning（`navsim/agents/sparsedrive/rl_finetune.py`），
+**当前训练即 Hydra-MDP 式"分项蒸馏"，本框架补上"组合分数直接对齐 reward"与策略梯度两步**：
+
+- **Stage 0**（监督，非 RL）：`reward_ce`——`traj_scores` 直接对齐官方 EPDMS 软标签
+  （`softmax(-τ(1-r))`，τ 控制软硬）；`composition_loss`——把推理用的组合分数可微重建后
+  回归到规则评分器的官方 `pdm_score`，校准实际决策边界
+- **Stage 1**（GRPO）：`softmax(traj_scores)` 作词表离散策略，组内（final-200 候选）
+  优势归一化，`β·KL(π‖π_IL)` 锚定（参考分支为 IL 权重冻结拷贝，惰性创建、不入 state_dict）；
+  reward 复用 metric cache 的规则评分器，零新增数据与仿真
+- 冻结策略：`train_scope=scorer_heads`（1.8M / 50.4M 可训练）或 `traj_branch`；冻结模块强制
+  eval（BN 统计量固定、dropout 关闭）；推理选择默认不变（`selection_score=metric|traj`）
+
+运行：`scripts/training/sparsedrive_navsimv1_rl.sh`（navtrain 全量；mini 冒烟为 Windows 本地
+.bat，按仓库约定不入库）。评测：`deploy/pdms_eval_finetuned.py` 成对 A/B（两模型同图优化、
+同场景列表）。数值回归：`tests/test_rl_finetune.py`。
+
+**mini 138 场景同口径 A/B**（60 步冒烟、域内训练）：0.7440 → 0.7474（+0.0034，22 升 / 19 降 /
+97 平）——净效应在 mini 噪声地板内（±0.005），作为**管线验证而非效果结论**；效果裁决待
+navtrain × 2 epochs + navtest 全量。（证据：`deploy/artifacts/pdms_finetuned_report.json` 及逐场景 CSV）
+
+已知坑：cache-only 训练的实际样本列表来自 `default_train_val_test_log_split.yaml` 硬编码的
+顶层 `train_logs`（与 `train_test_split` 配置无关），本地分片训练需在命令行显式覆盖
+`train_logs` / `val_logs`，否则会静默只用部分 log。
+
 ## License
 
 本项目沿用上游的 [Apache-2.0](LICENSE) 协议。

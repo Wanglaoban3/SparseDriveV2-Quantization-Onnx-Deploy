@@ -1,0 +1,11 @@
+defaults:
+  - scene_filter: shard0
+
+data_split: mini
+# the two logs actually present in exp/data_cache_mini / exp/metric_cache_mini_v1 on the dev machine
+train_logs:
+  - 2021.06.28.16.29.11_veh-38_01415_01821
+  - 2021.10.11.02.57.41_veh-50_01522_02088
+val_logs:
+  - 2021.06.28.16.29.11_veh-38_01415_01821
+  - 2021.10.11.02.57.41_veh-50_01522_02088

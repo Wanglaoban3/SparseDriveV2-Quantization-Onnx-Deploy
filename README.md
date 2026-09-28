@@ -150,6 +150,16 @@ python deploy/artifacts/build_engine.py \
 插件源码与单元测试、参考输出 `reference_traj_fp32.npz` 与
 `sample_inputs.npz`（可离线复跑 `verify_opt.py` 对齐验证）。
 
+## 产物下载
+
+最终交付的 QDQ ONNX（板端 engine 编译输入）不入 git，挂 GitHub Releases：
+
+- **[v1.0-board-deploy · sparsedrive_int8_qdq_feat8_folded.onnx](https://github.com/Wanglaoban3/SparseDriveV2-Quantization-Onnx-Deploy/releases/download/v1.0-board-deploy/sparsedrive_int8_qdq_feat8_folded.onnx)**
+  （237,708,699 字节，SHA256 `e53274f6859ea7e75982d4108c88ef87fc459b8a7196a516e166ee0abd39e83b`，
+  含 INT8 + Top-12 回退 + 蒸馏 QAT + DFA feat-INT8 + 结构折叠，navtest PDMS 0.9138）
+- 下载后可直接进入下方「板端部署」的 engine 编译步骤；其余中间产物（FP32 导出、各量化中间态）
+  按上方脚本由仓库重新生成。
+
 ## 板端部署
 
 详见 [`deploy/artifacts/BOARD_DEPLOY.md`](deploy/artifacts/BOARD_DEPLOY.md)：

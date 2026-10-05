@@ -1,0 +1,13 @@
+# M4 profile buckets (SparseDriveV2)
+
+## deploy\artifacts\prof\prof_real_pg.log
+
+rows=72 total_row=55.4496 sum_of_layers=55.450 ms
+
+| bucket | ms/iter | % | layers |
+|---|---:|---:|---:|
+| dfa_plugin | 36.067 | 65.0% | 3 |
+| myelin_fused | 14.423 | 26.0% | 4 |
+| img_backbone | 4.639 | 8.4% | 52 |
+| reformat | 0.116 | 0.2% | 12 |
+| other | 0.205 | 0.4% | 1 |

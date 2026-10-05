@@ -1,0 +1,10 @@
+{
+  "metric_mae_ref": 0.6556,
+  "metric_mae_max": 0.8195,
+  "traj_l1_ref": 0.095,
+  "traj_l1_max": 0.125,
+  "score_mae_ref": 0.4499,
+  "argmax_ref": 0.2083,
+  "gt_dist_fp32": 1.0923,
+  "gt_dist_max_delta": 0.06
+}

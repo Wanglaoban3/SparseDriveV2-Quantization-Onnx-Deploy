@@ -165,12 +165,40 @@ python deploy/artifacts/build_engine.py \
 详见 [`deploy/artifacts/BOARD_DEPLOY.md`](deploy/artifacts/BOARD_DEPLOY.md)：
 插件契约（输入布局 / dtype 组合 / 第 6 输入 scale）、四轮量化实验完整记录、engine 构建要点、
 精度对齐闭环（开发机 make_engine_reference.py 出基准 → 板端 engine_infer_check.py 验证）。
-已知限制：engine 编译与实测需在 Linux + CUDA 目标设备完成，全流程脚本仓库内齐备。
+板端驱动：`deploy/board/board_v2.py`（stage 化 CLI：插件编译 / 引擎构建 / 计时 / profile /
+M2 dump / M3 场景评测；凭据仅经 `BOARD_HOST` / `BOARD_PASS` 环境变量注入，不入库）。
+engine 编译与实测需在 Linux + CUDA 目标设备完成，全流程脚本仓库内齐备。
+
+## 板端延迟优化（71.30 → 22.92 ms，−67.9%）
+
+量化交付之后，在 Orin（sm_87）+ TensorRT 8.6.1.2 上完成了 8 轮门禁化延迟优化
+（fp16 图手术 + 自研 DFA/MHA CUDA 插件；每轮须过 M2 逐样本精度门禁与 M3 端到端
+PDMS 门禁才转正，逐场景证据全部留档）：
+
+| # | 轮次 | e2e (ms) | Δ |
+|---|---|---|---|
+| 0 | fp16 引擎基线（eager；fp32 引擎 99.16） | 71.30 | — |
+| 1 | DFA fp16 原生 IO + CUDA Graph | 62.18 | −9.12 |
+| 2 | softmax/plan/gather 并入 DFA 插件（Pg） | 54.58 | −7.60 |
+| 3 | gather half2 向量化 + plan 相位合并 | 40.13 | −14.45 |
+| 4 | gather v3（uint2 tap / 4 通道·线程 / block 协同暂存） | 35.42 | −4.71 |
+| 5 | DFA v4（Entry 64→48B + 除法→乘法） | 34.24 | −1.18 |
+| 6 | FusedMHA v1（7 块注意力链 → 单插件 kernel） | 32.67 | −1.58 |
+| 7 | FusedMHA v2（flash-tile，smem K/V 双缓冲） | 29.68 | −2.99 |
+| 8 | sumfusion v5（anchor 求和入核，消 262MB ReduceSum 往返） | 22.92 | −6.76 |
+
+负结果同样留档：myelin 区 Linear INT8 三剂量判负（E1 +4.16ms，归因 myelin 对
+QDQ 区域重规划）；backbone INT8 净零（int8 conv −0.660ms 被量化税 +0.885ms 抵消，
+逐 conv 对账与实测分毫吻合，并澄清"融合组名 ≠ 未折叠"的判坑）。
+完整战役记录（环境与设备 / 门禁协议 / 逐轮详情 / 工具链 / 回滚谱系）见
+[`deploy/artifacts/reports/BOARD_OPTIMIZE.md`](deploy/artifacts/reports/BOARD_OPTIMIZE.md)；
+剩余优化方向与不建议再投入的路线见
+[`deploy/artifacts/reports/FUTURE_WORK.md`](deploy/artifacts/reports/FUTURE_WORK.md)。
 
 ## Roadmap
 
-- [ ] **Linux 板端 engine 实测**：build + 24 样本精度对齐 + 延迟，在任意 Linux + CUDA 设备
-  （含目标板卡）上执行，脚本与对齐基准仓库内齐备
+- [x] **Linux 板端 engine 实测**：已完成——Orin（sm_87）+ TRT 8.6.1.2 上 build、
+  24 样本精度对齐（M2）、138 场景 PDMS（M3）、延迟优化战役（见上节）全部闭环
 - [ ] **完整 navtrain 数据上的 QAT**（蒸馏管线已就绪）：解锁 loc INT8（已证明损失可忽略）、
   冲击 w INT8 与全 INT8 覆盖
 - [ ] **2:4 结构化稀疏**（Ampere 及以上，ModelOpt sparsity → TRT sparse tactic）
@@ -191,8 +219,8 @@ python deploy/artifacts/build_engine.py \
 - 冻结策略：`train_scope=scorer_heads`（1.8M / 50.4M 可训练）或 `traj_branch`；冻结模块强制
   eval（BN 统计量固定、dropout 关闭）；推理选择默认不变（`selection_score=metric|traj`）
 
-运行：`scripts/training/sparsedrive_navsimv1_rl.sh`（navtrain 全量；mini 冒烟为 Windows 本地
-.bat，按仓库约定不入库）。评测：`deploy/pdms_eval_finetuned.py` 成对 A/B（两模型同图优化、
+运行：`scripts/training/sparsedrive_navsimv1_rl.sh`（navtrain 全量；mini 冒烟脚本
+按仓库约定不入库）。评测：`deploy/pdms_eval_finetuned.py` 成对 A/B（两模型同图优化、
 同场景列表）。数值回归：`tests/test_rl_finetune.py`。
 
 **mini 138 场景同口径 A/B**（60 步冒烟、域内训练）：0.7440 → 0.7474（+0.0034，22 升 / 19 降 /

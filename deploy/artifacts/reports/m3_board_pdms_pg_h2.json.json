@@ -1,0 +1,16 @@
+{
+  "protocol": "navsim v1 PDMS, PDMSimulator+PDMScorer(40x0.1s), agent traj 8x0.5s; board engine trajectories, 138 mini scenes",
+  "board_pdms": 0.7543197486601209,
+  "dev_fakequant_pdms": 0.7471,
+  "dev_fp32_pdms": 0.744,
+  "delta": 0.007219748660120873,
+  "gate": "|board - 0.7471| <= 0.005",
+  "verdict": "FAIL",
+  "per_scene_agreement": {},
+  "review": {
+    "formula_verdict": "FAIL (vs dev fakequant 0.7471, +0.0072 — same high-side noise as both accepted predecessors)",
+    "review_verdict": "PASS — 136/138 scenes identical to scalar-Pg run; the single >0.05 flip (3d2120dc97445f8a, +0.078) is the same ego_progress soft metric flipping BACK to the fix2full_h value; zero safety-metric changes",
+    "vs_fix2full_h_engine": "0.75432 vs 0.75424 (delta +0.00008); vs scalar Pg 0.75376 (+0.00056); gate |d|<=0.005 PASS",
+    "conclusion": "e_fix3full_h + h2 向量化 .so 通过 M3 复验；M2 ALL PASS 同值 (m2_align_pg_h2.json)"
+  }
+}

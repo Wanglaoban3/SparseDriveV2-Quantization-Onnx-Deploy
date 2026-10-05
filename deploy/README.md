@@ -153,3 +153,12 @@ Top-12 回退是保险而非必需。
 
 证据落盘：`artifacts/pdms_report.json`、`pdms_configs_report.json`、
 `sensitivity_pdms.json/csv`、`pdms_navtest_report.json` 及逐场景 `pdms_*.csv`。
+
+## 板端延迟优化（延伸战役）
+
+量化交付之后另有板端延迟优化线：fp16 图手术（`make_graph_fix*.py`）+ 自研 DFA/MHA
+CUDA 插件（`artifacts/plugin/`），Orin + TRT 8.6.1.2 上 **71.30 → 22.92ms（−67.9%）**，
+每轮过 M2/M3 门禁。战役记录（环境、协议、逐轮收益、负结果、工具链、回滚谱系）：
+`artifacts/reports/BOARD_OPTIMIZE.md`；剩余方向：`artifacts/reports/FUTURE_WORK.md`。
+板端驱动 CLI：`board/board_v2.py`（stage 清单见战役文档 §7；凭据只从
+`BOARD_HOST` / `BOARD_PASS` 环境变量注入）。

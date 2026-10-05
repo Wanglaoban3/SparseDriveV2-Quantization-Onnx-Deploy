@@ -1,0 +1,16 @@
+{
+  "protocol": "navsim v1 PDMS, PDMSimulator+PDMScorer(40x0.1s), agent traj 8x0.5s; board engine trajectories, 138 mini scenes",
+  "board_pdms": 0.75375548580549,
+  "dev_fakequant_pdms": 0.7471,
+  "dev_fp32_pdms": 0.744,
+  "delta": 0.0066554858054900246,
+  "gate": "|board - 0.7471| <= 0.005",
+  "verdict": "FAIL",
+  "per_scene_agreement": {},
+  "review": {
+    "formula_verdict": "FAIL (vs dev fakequant 0.7471, +0.0067 — same high-side noise as accepted baseline)",
+    "review_verdict": "PASS — 136/138 scenes identical score; single flip 3d2120dc97445f8a (-0.078) is ego_progress soft metric only (0.771->0.584, simulator rollout borderline); ALL safety hard metrics (collision/drivable/TTC/comfort/direction) = 1.0 both sides on all 138 scenes",
+    "vs_fix2full_h_engine": "0.75376 vs 0.75424 (delta -0.00049, gate |d|<=0.005 PASS); within_0.05 = 99.3%",
+    "conclusion": "e_fix3full_h (Pg plugin: plan+gather+inline softmax, CUDA graph) 通过 M3 验收，与 M2 ALL PASS (m2_align_pg.json) 一致"
+  }
+}

@@ -47,7 +47,9 @@ def make_symbolic():
     """symbolic for DeformableAggregationFunction; shapes read from traced values."""
 
     def _cast32(g, t):
-        return g.op("Cast", t, to_i=3)  # 3 = ONNX INT32
+        # TensorProto.INT32 = 6（曾在 2026-10-05 前误写 to_i=3 = INT8：
+        # ssi 值域上万千被截断、TRT 插件 int32 契约协商必死，见 AGENTS.md）
+        return g.op("Cast", t, to_i=6)  # 6 = ONNX INT32
 
     def symbolic(g, feat, ss, ssi, loc, w):
         feat_in = feat

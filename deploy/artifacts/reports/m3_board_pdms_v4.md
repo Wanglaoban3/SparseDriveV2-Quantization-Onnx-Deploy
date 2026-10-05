@@ -1,0 +1,27 @@
+# M3 board PDMS
+
+```json
+{
+  "protocol": "navsim v1 PDMS, PDMSimulator+PDMScorer(40x0.1s), agent traj 8x0.5s; board engine trajectories, 138 mini scenes",
+  "board_pdms": 0.7543191923317041,
+  "dev_fakequant_pdms": 0.7471,
+  "dev_fp32_pdms": 0.744,
+  "delta": 0.007219192331704094,
+  "gate": "|board - 0.7471| <= 0.005",
+  "verdict": "FAIL",
+  "per_scene_agreement": {
+    "fakequant": {
+      "n": 138,
+      "mean_abs_delta": 0.02507393834672202,
+      "exact_rate": 0.5579710144927537,
+      "within_0p05": 0.9710144927536232
+    },
+    "fp32": {
+      "n": 138,
+      "mean_abs_delta": 0.013294821176410957,
+      "exact_rate": 0.5797101449275363,
+      "within_0p05": 0.9710144927536232
+    }
+  }
+}
+```

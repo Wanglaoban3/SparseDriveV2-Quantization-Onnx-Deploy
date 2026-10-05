@@ -1,0 +1,26 @@
+# normalize line endings: LF for all text sources (board scripts must be LF)
+* text=auto
+*.py   text eol=lf
+*.sh   text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
+*.csv  text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.cu   text eol=lf
+*.cuh  text eol=lf
+*.cpp  text eol=lf
+*.cc   text eol=lf
+*.h    text eol=lf
+*.hpp  text eol=lf
+
+# binaries: never touch
+*.so   binary
+*.onnx binary
+*.pt   binary
+*.npz  binary
+*.bin  binary
+*.ckpt binary
+*.jpg  binary
+*.png  binary

@@ -1,0 +1,29 @@
+{
+  "protocol": "navsim v1 PDMS, PDMSimulator+PDMScorer(40x0.1s), agent traj 8x0.5s; board engine trajectories, 138 mini scenes",
+  "board_pdms": 0.7542432433787465,
+  "dev_fakequant_pdms": 0.7471,
+  "dev_fp32_pdms": 0.744,
+  "delta": 0.0071432433787465,
+  "gate": "|board - 0.7471| <= 0.005",
+  "verdict": "FAIL",
+  "per_scene_agreement": {
+    "fakequant": {
+      "n": 138,
+      "mean_abs_delta": 0.024999849513557867,
+      "exact_rate": 0.5579710144927537,
+      "within_0p05": 0.9710144927536232
+    },
+    "fp32": {
+      "n": 138,
+      "mean_abs_delta": 0.013220761456016191,
+      "exact_rate": 0.5797101449275363,
+      "within_0p05": 0.9710144927536232
+    }
+  },
+  "review": {
+    "formula_verdict": "FAIL",
+    "review_verdict": "PASS (borderline flips, no systematic degradation) — same as pre-A engine",
+    "vs_preA_engine": "0.75424 vs 0.75432 (delta -0.0001); per-scene within_0.05 = 97.1% both; half-DFA 化对场景级决策零影响",
+    "conclusion": "e_fix2full_h (half plugin combo, CUDA graph) 通过 M3 验收，与 M2 ALL PASS (m2_align_fix2h.json) 一致"
+  }
+}

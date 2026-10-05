@@ -31,11 +31,15 @@ def main():
     if not creators:
         sys.exit("FAIL: plugin creator not found in registry")
     for c in creators:
-        print("      creator: name=%s namespace=%s version=%s"
+        print("      creator: name=%s namespace=%r version=%s"
               % (c.name, c.plugin_namespace, c.plugin_version))
-    assert any(c.plugin_namespace == "sparsedrivev2" for c in creators), \
-        "plugin namespace mismatch"
-    print("[2/3] creator registered under namespace 'sparsedrivev2'")
+    # TRT 8.6 board-proven: registerCreator dedups by (name, version) keeping
+    # the FIRST, and the parser queries the EMPTY namespace — the surviving
+    # creator must therefore sit in "".
+    assert any(c.plugin_namespace == "" for c in creators), \
+        "creator must live in the EMPTY namespace (parser query ns); got %r" \
+        % [c.plugin_namespace for c in creators]
+    print("[2/3] creator registered under namespace '' (parser query ns)")
 
     logger = trt.Logger(trt.Logger.WARNING)
     builder = trt.Builder(logger)
@@ -48,8 +52,10 @@ def main():
         sys.exit("FAIL: ONNX parse failed")
     print("[3/3] ONNX parsed")
 
-    plugin_layers = [l for l in network
-                     if l.type == trt.LayerType.PLUGIN]
+    # TRT 8.6: IPluginV2DynamicExt layers show up as PLUGIN_V2 (enum 34),
+    # not the legacy PLUGIN (enum 9) — accept either.
+    _plugin_types = {trt.LayerType.PLUGIN, trt.LayerType.PLUGIN_V2}
+    plugin_layers = [l for l in network if l.type in _plugin_types]
     print("      layers total=%d  plugin(DFA)=%d  inputs=%d  outputs=%d"
           % (network.num_layers, len(plugin_layers),
              network.num_inputs, network.num_outputs))

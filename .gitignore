@@ -39,8 +39,35 @@ build/
 deploy/artifacts/*.onnx
 deploy/artifacts/*.pt
 deploy/artifacts/calib/
+*.onnx.bak*
 
 # platform-local helper scripts (not part of the cross-platform pipeline)
 *.bat
 *.pyd
 deploy/artifacts/engine_ref/
+
+# board-optimization campaign: local dumps / big regenerable data
+deploy/artifacts/tap_probe/
+deploy/artifacts/tap_probe*.onnx
+deploy/artifacts/nobkb*_probe.onnx
+deploy/artifacts/engine_inputs/*
+!deploy/artifacts/engine_inputs/mini138/
+deploy/artifacts/engine_inputs/mini138/*
+!deploy/artifacts/engine_inputs/mini138/tokens.txt
+deploy/artifacts/board_outs/
+deploy/artifacts/board_dump24/
+deploy/artifacts/board_prof/
+deploy/artifacts/ab_outs/
+deploy/artifacts/ah_outs/
+deploy/artifacts/ah24_outs/
+deploy/artifacts/fix2b_outs/
+deploy/artifacts/fix2f32_outs/
+deploy/artifacts/fix2nt_outs/
+deploy/artifacts/prof/kstat/
+
+# internal working notes / agent memory (not part of the open-source deliverable)
+.superpowers/
+docs/superpowers/
+AGENTS.md
+_tmp_*
+_test_*.py

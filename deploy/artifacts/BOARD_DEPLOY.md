@@ -1,6 +1,6 @@
 # SparseDriveV2 板端 TRT 部署说明
 
-## 交付物清单（SparseDriveV2/deploy/artifacts\）
+## 交付物清单（deploy/artifacts/）
 - `sparsedrive_fp32.onnx`          FP32 ONNX，含3个自定义节点 sparsedrivev2::DeformableAggregation（opset 17, bs=1静态shape）
 - `sparsedrive_int8_qdq.onnx`      INT8显式量化ONNX（QuantizeLinear/DequantizeLinear QDQ节点，ModelOpt PTQ，敏感层已回退）
 - `calib/calib_00.npz .. 15.npz`   校准样本（imgs/proj/iwh/status，uint8范围已归一化float32）
@@ -38,11 +38,25 @@
 2. 构建 engine（插件先加载）:
    ```
    python build_engine.py --onnx sparsedrive_int8_qdq.onnx --out engine_int8.plan \
-       --plugin build/libdfa_plugin.so --fp16
+       --plugin build/libdfa_plugin.so --int8 --fp16
    ```
-   （QDQ模型用--fp16即可：Q/DQ节点会被builder融合成INT8，DFA插件跑FP16/FP32。）
-   隐式量化备选：`--onnx sparsedrive_fp32.onnx --int8 --calib-dir calib`
+   **本 TRT 8.6.1.2 板（2026-10-05 实测）：QDQ 显式量化图必须 `--int8 --fp16` 一起给**——
+   只 --fp16 会被 network validate 拒绝（`Int8 precision has been set ... but int8 is
+   not configured`）；只 --int8（无 fp16）DFA 插件 format 协商必死。图内自带 scale/zp，
+   无需校准。
 3. 推理: 常规 enqueueV2 流程，输出中 trajectory 即结果。
+
+### 板端编译已知坑（2026-10-05 实测）
+- **DFA ss/ssi 的 Cast 必须是 INT32**：export_onnx.py `_cast32` 曾误写 `to_i=3`
+  （=ONNX INT8，注释错；INT32=6）。后果双重：① TRT 无法给插件插 dtype 转换，
+  build 报 `could not find any supported formats consistent with input/output data
+  types`（onnxsim 后全图仅剩的 6 个 to=i8 Cast 正是 3 个 DFA 的 ss/ssi）；
+  ② ssi（scale_start_index）值域上万千，int8 截断 = DFA 采样索引全是垃圾。
+  kernel 单测没抓到是因为测试常量直接从模型抽的 int32，没走 ONNX。已修导出脚本
+  + 现役 ONNX（`fix_dfa_cast_i32.py`，备份 .bak_pre_i32）。
+- **Myelin `convertMyelinWeightsToFp32::8122` assert**（weight-Q 折叠图 + --int8
+  --fp16）：rewritten 图触发的二分证据见 SDD ledger；pre_rewrite（权重 Q 未折叠）
+  在 ss/ssi 修为 int32 后待验证。fallback = 板上 v1 onnx2engine2（逐层精度约束）。
 
 ## 量化精度结论（fake-quant 实测，24个held-out样本；优化后图：冻结词表+可量化MHA+deform去重）
 | 配置 | argmax一致率 | 轨迹平均偏差 | score MAE | metric MAE | 相对GT距离 |
